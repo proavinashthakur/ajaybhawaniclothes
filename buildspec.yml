@@ -10,7 +10,6 @@ phases:
       - aws ssm get-parameter --name "/trade-bot/ssh-key" --with-decryption --query "Parameter.Value" --output text > trade-bot-key
       - chmod 600 trade-bot-key
 
-
   build:
     commands:
       - echo "Deploying code to EC2 instance..."
@@ -20,19 +19,26 @@ phases:
 
       - echo "Transferring code to EC2 instance..."
       - scp -o StrictHostKeyChecking=no -i trade-bot-key trade-bot.tar.gz root@51.92.33.198:/root/
-      
+
+      - echo "Transferring .env file to EC2 instance..."
+      - scp -o StrictHostKeyChecking=no -i trade-bot-key .env root@51.92.33.198:/root/
+
       - echo "Extracting and deploying on EC2..."
       - |
         ssh -o StrictHostKeyChecking=no -i trade-bot-key root@51.92.33.198 << 'EOF'
-        cd /root
+        mkdir -p /root/trade_bot_py
+        mv /root/trade-bot.tar.gz /root/trade_bot_py/
+        cd /root/trade_bot_py
         tar -xzf trade-bot.tar.gz
         rm -f trade-bot.tar.gz
-        mv .env /root/trade_bot_py/.env  
-        cd /root/trade_bot_py
+        mv /root/.env /root/trade_bot_py/.env  
         docker-compose down --remove-orphans
         docker-compose up -d --build
         docker system prune -af --volumes
         EOF
+
+      - echo "Cleaning up private key..."
+      - rm -f trade-bot-key
 
 artifacts:
   files:
