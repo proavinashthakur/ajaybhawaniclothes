@@ -10,6 +10,7 @@ phases:
       - aws ssm get-parameter --name "/trade-bot/ssh-key" --with-decryption --query "Parameter.Value" --output text > trade-bot-key
       - chmod 600 trade-bot-key
 
+
   build:
     commands:
       - echo "Deploying code to EC2 instance..."
