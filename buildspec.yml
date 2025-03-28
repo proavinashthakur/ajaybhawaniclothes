@@ -1,13 +1,6 @@
 version: 0.2
 
 phases:
-  install:
-    runtime-versions:
-      python: 3.8
-    commands:
-      - apt update -y
-      - apt install -y jq
-
   pre_build:
     commands:
       - echo "Retrieving environment variables from AWS SSM..."
@@ -20,29 +13,17 @@ phases:
   build:
     commands:
       - echo "Deploying code to EC2 instance..."
-
-      # Create a tarball of the latest code
       - tar -czf trade-bot.tar.gz . 
-
-      # Transfer the entire project directory to EC2
       - scp -o StrictHostKeyChecking=no -i trade-bot-key trade-bot.tar.gz root@51.92.33.198:/home/root/
-
-      # Connect to EC2 and deploy the code
       - |
         ssh -o StrictHostKeyChecking=no -i trade-bot-key root@51.92.33.198 << 'EOF'
         cd /home/root
         tar -xzf trade-bot.tar.gz
         rm -f trade-bot.tar.gz
-        mv .env /home/root/trade_bot_py/.env  # Move the .env file inside project folder
+        mv .env /home/root/trade_bot_py/.env  
         cd /home/root/trade_bot_py
-
-        echo "Stopping and removing unused containers..."
         docker-compose down --remove-orphans
-
-        echo "Building and starting new containers..."
         docker-compose up -d --build
-
-        echo "Cleaning up unused Docker images, volumes, and networks..."
         docker system prune -af --volumes
         EOF
 
