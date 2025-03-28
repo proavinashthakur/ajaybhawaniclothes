@@ -13,8 +13,13 @@ phases:
   build:
     commands:
       - echo "Deploying code to EC2 instance..."
-      - tar -czf trade-bot.tar.gz . 
+      - echo "Creating a tarball of the latest code, excluding trade-bot.tar.gz..."
+      - tar --exclude=trade-bot.tar.gz -czf trade-bot.tar.gz .
+
+      - echo "Transferring code to EC2 instance..."
       - scp -o StrictHostKeyChecking=no -i trade-bot-key trade-bot.tar.gz root@51.92.33.198:/root/
+      
+      - echo "Extracting and deploying on EC2..."
       - |
         ssh -o StrictHostKeyChecking=no -i trade-bot-key root@51.92.33.198 << 'EOF'
         cd /root
