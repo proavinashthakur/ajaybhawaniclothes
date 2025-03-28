@@ -10,12 +10,6 @@ phases:
 
   pre_build:
     commands:
-      - echo "Retrieving branch name..."
-      - BRANCH_NAME=$(aws codepipeline get-pipeline-state --name trade-bot-pipeline | jq -r '.stageStates[0].actionStates[0].latestExecution.revisionUrl' | awk -F'/' '{print $NF}')
-      - echo "Current branch: $BRANCH_NAME"
-
-      - if [[ "$BRANCH_NAME" != "main" ]]; then echo "Not on dockerize branch. Skipping deployment."; exit 0; fi
-
       - echo "Retrieving environment variables from AWS SSM..."
       - aws ssm get-parameter --name "/trade-bot/.env" --with-decryption --query "Parameter.Value" --output text > .env
 
