@@ -14,14 +14,14 @@ phases:
     commands:
       - echo "Deploying code to EC2 instance..."
       - tar -czf trade-bot.tar.gz . 
-      - scp -o StrictHostKeyChecking=no -i trade-bot-key trade-bot.tar.gz root@51.92.33.198:/home/root/
+      - scp -o StrictHostKeyChecking=no -i trade-bot-key trade-bot.tar.gz root@51.92.33.198:/root/
       - |
         ssh -o StrictHostKeyChecking=no -i trade-bot-key root@51.92.33.198 << 'EOF'
-        cd /home/root
+        cd /root
         tar -xzf trade-bot.tar.gz
         rm -f trade-bot.tar.gz
-        mv .env /home/root/trade_bot_py/.env  
-        cd /home/root/trade_bot_py
+        mv .env /root/trade_bot_py/.env  
+        cd /root/trade_bot_py
         docker-compose down --remove-orphans
         docker-compose up -d --build
         docker system prune -af --volumes
