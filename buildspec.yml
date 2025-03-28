@@ -13,8 +13,9 @@ phases:
   build:
     commands:
       - echo "Deploying code to EC2 instance..."
-      - echo "Creating a tarball of the latest code, excluding trade-bot.tar.gz..."
-      - tar --exclude=trade-bot.tar.gz -czf trade-bot.tar.gz .
+      - mkdir -p workspace
+      - rsync -av --progress ./ workspace/ --exclude 'trade-bot.tar.gz' --exclude '.git' --exclude '*.log' --exclude 'tmp/*'
+      - tar -czf trade-bot.tar.gz -C workspace .
 
       - echo "Transferring code to EC2 instance..."
       - scp -o StrictHostKeyChecking=no -i trade-bot-key trade-bot.tar.gz root@51.92.33.198:/root/
